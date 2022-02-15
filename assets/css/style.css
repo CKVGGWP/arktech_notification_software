@@ -1,0 +1,101 @@
+* {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
+
+.container-fluid{
+	height: 90vh;
+}
+
+
+textarea {
+    resize: none;
+}
+
+.blur-active::before {
+    content: '';
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 520%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 3;
+}
+
+.preloader {
+    position: absolute;
+    left: 50%;
+    top: 30%;
+    transform: translate(-50%, -50%);
+    z-index: 999999;
+}
+
+.kbw-signature {
+    height: 120px;
+    width: 100%;
+}
+
+button.slick-prev.slick-arrow {
+  position: relative;
+  width: 30px;
+  overflow: hidden;
+  background: transparent;
+  border: 0;
+  position: absolute;
+  left: 0px;
+  right: auto;
+  z-index: 11;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+}
+
+button.slick-prev.slick-arrow:after {
+  content: "<";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: #fff;
+  color: #bdc0ba;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 50px;
+  font-weight: lighter;
+}
+
+button.slick-next.slick-arrow {
+  position: relative;
+  width: 40px;
+  overflow: hidden;
+  background: transparent;
+  border: 0;
+  position: absolute;
+  left: auto;
+  right: 0px;
+  z-index: 11;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 40px;
+}
+
+button.slick-next.slick-arrow:after {
+  content: ">";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: #fff;
+  color: #bdc0ba;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 50px;
+  font-weight: lighter;
+}
