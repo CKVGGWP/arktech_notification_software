@@ -2,83 +2,22 @@
 
 class Notifications extends Database
 {
-   public function getTable($userID)
+    // CK Code Start
+
+    public function getTable($notificationType = '')
     {
         $query = "SELECT 
-                n.notificationId, 
-                d.notificationDetail, 
-                d.notificationKey, 
-                l.dateIssued, 
-                l.employeeNumber, 
-                l.employeeName, 
-                l.designation,
-                l.department, 
-                l.purposeOfLeave, 
-                l.leaveFrom, 
-                l.leaveTo, 
-                l.listId
-                FROM `system_notification` n 
-                JOIN system_notificationdetails d ON n.notificationId = d.notificationId
-                JOIN system_leaveform l ON d.notificationKey = l.listId
-                WHERE n.notificationTarget = '$userID' AND l.status = 0";
+                  notificationId,
+                  notificationDetail,
+                  notificationKey  
+                  FROM system_notificationdetails";
 
-        $sql = $this->connect()->query($query);
-        $data = [];
-        $totalData = 0;
-        if ($sql->num_rows > 0) {
-            while ($result = $sql->fetch_assoc()) {
-                extract($result);
-
-                $data[] = [
-                    $notificationId,
-                    $notificationDetail,
-                    $notificationKey,
-                    '<button type="button" class="btn btn-warning employees" data-bs-toggle="modal" data-bs-target="#viewModal" id="' . $listId . '"
-                    data-employee=\'{"employeeNumber":"' . $employeeNumber . '","employeeName":"' . $employeeName . '","designation":"' . $designation . '",
-                    "department":"' . $department . '","purposeOfLeave":"' . $purposeOfLeave . '","leaveFrom":"' . date("F j, Y", strtotime($leaveFrom)) . '",
-                    "leaveTo":"' . date("F j, Y", strtotime($leaveTo)) . '", "listId":"' . $listId . '"}\'>
-  						View
-					</button>',
-                ];
-                $totalData++;
-            }
+        if ($notificationType != "") {
+            $query .= " WHERE notificationType = '$notificationType'";
         }
-        $json_data = array(
-            "draw"            => 1,   // for every request/draw by clientside , they send a number as a parameter, when they recieve a response/data they first check the draw number, so we are sending same number in draw. 
-            "recordsTotal"    => intval($totalData),  // total number of records
-            "recordsFiltered" => intval($totalData), // total number of records after searching, if there is no searching then totalFiltered = totalData
-            "data"            => $data   // total data array
-        );
 
-        echo json_encode($json_data);  // send data as json format
-    }
+        $query .= " ORDER BY notificationId DESC";
 
-	// CK Code Start
-
-    public function getHRTable()
-    {
-        $query = "SELECT 
-                n.notificationId, 
-                d.notificationDetail, 
-                d.notificationKey, 
-                l.dateIssued, 
-                l.employeeNumber, 
-                l.employeeName, 
-                l.designation,
-                l.department, 
-                l.purposeOfLeave, 
-                l.leaveFrom, 
-                l.leaveTo, 
-                l.listId, 
-                l.reasonOfSuperior, 
-                l.date, 
-                h.leaveType
-                FROM `system_notification` n 
-                JOIN system_notificationdetails d ON n.notificationId = d.notificationId
-                JOIN system_leaveform l ON d.notificationKey = l.listId
-                JOIN hr_leave h ON h.employeeId = l.employeeNumber
-                WHERE l.status = 2 AND h.leaveRemarks = '' 
-                GROUP BY l.employeeNumber";
 
         $sql = $this->connect()->query($query);
         $data = [];
@@ -91,11 +30,7 @@ class Notifications extends Database
                     $notificationId,
                     $notificationDetail,
                     $notificationKey,
-                    '<button type="button" class="btn btn-warning hr" data-bs-toggle="modal" data-bs-target="#viewHRModal" id="' . $listId . '"
-                    data-employee=\'{"employeeNumber":"' . $employeeNumber . '","employeeName":"' . $employeeName . '","designation":"' . $designation . '",
-                    "department":"' . $department . '","purposeOfLeave":"' . $purposeOfLeave . '","leaveFrom":"' . date("F j, Y", strtotime($leaveFrom)) . '",
-                    "leaveTo":"' . date("F j, Y", strtotime($leaveTo)) . '", "listId":"' . $listId . '", "reasonOfSuperior":"' . $reasonOfSuperior . '",
-                    "date":"' . date("F j, Y", strtotime($date)) . '"}\'>
+                    '<button type="button" class="btn btn-warning employees">
   						View
 					</button>',
                 ];
@@ -123,38 +58,6 @@ class Notifications extends Database
         $pos = $result['positionName'];
 
         return $pos;
-    }
-
-    public function countNotification($position = '')
-    {
-        $sql = '';
-
-        if ($position == 'HR') {
-            $sql .= "SELECT COUNT(leaveId) AS notifCount 
-                    FROM hr_leave 
-                    WHERE leaveRemarks = ''";
-        } else {
-            $sql .= "SELECT COUNT(l.listId) AS notifCount 
-                    FROM system_leaveform l 
-                    LEFT JOIN system_notificationdetails n ON n.notificationKey = l.listId 
-                    LEFT JOIN system_notification s ON s.notificationId = n.notificationId 
-                    WHERE s.notificationTarget = '" . $_SESSION['userID'] . "' AND l.status = '0' 
-                    GROUP BY l.department";
-        }
-
-        $query = $this->connect()->query($sql);
-
-        $data = '';
-
-        if ($query->num_rows > 0) {
-            while ($result = $query->fetch_assoc()) {
-                $data = $result['notifCount'];
-            }
-        } else {
-            $data = 0;
-        }
-
-        return $data;
     }
 
     public function leaveFormApproval($id, $status, $remarks, $from = '', $to = '')
@@ -227,7 +130,7 @@ class Notifications extends Database
         }
     }
 
-	public function updateHR($leaveType, $leaveRemarks, $status, $type, $transpoAllowance, $quarantine, $empId)
+    public function updateHR($leaveType, $leaveRemarks, $status, $type, $transpoAllowance, $quarantine, $empId)
     {
         $sql = "UPDATE hr_leave h
                 LEFT JOIN system_leaveform s ON s.employeeNumber = h.employeeId
@@ -244,19 +147,20 @@ class Notifications extends Database
         }
     }
 
-	public function getNotificationType()
+    public function getNotificationType()
     {
         $sql = "SELECT 
-        notificationName, 
-        COUNT(notificationId) AS typeCount
-        FROM system_notificationdetails
-        LEFT JOIN system_notificationtype ON listId = notificationType
-        GROUP BY notificationName";
+                t.listId,
+                t.notificationName, 
+                COUNT(d.notificationId) AS typeCount
+                FROM system_notificationdetails d
+                LEFT JOIN system_notificationtype t ON t.listId = d.notificationType
+                GROUP BY t.notificationName";
         $query = $this->connect()->query($sql);
 
         return $query;
     }
 
-	// CK Code End 	
+    // CK Code End 	
 
 }

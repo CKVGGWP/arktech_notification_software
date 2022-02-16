@@ -23,6 +23,11 @@ class Login extends Database
             exit();
         }
 
+        if ($this->checkPosition() == false) {
+            echo "4";
+            exit();
+        }
+
         if ($this->getSessionID()) {
             echo "1";
         }
@@ -64,6 +69,41 @@ class Login extends Database
         }
 
         return $id;
+    }
+
+    private function getPosition($id)
+    {
+        $sql = "SELECT * FROM hr_positions WHERE positionId = '$id'";
+        $result = $this->connect()->query($sql);
+        $position = array();
+        if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $position[] = $row;
+            }
+        }
+        return $position;
+    }
+
+    private function setPosition()
+    {
+        $sql = "SELECT * FROM hr_employee WHERE userName = '$this->username' AND userPassword = '$this->password'";
+        $result = $this->connect()->query($sql);
+
+        if ($row = $result->fetch_assoc()) {
+            $id = $row['position'];
+        }
+
+        return $id;
+    }
+
+    private function checkPosition()
+    {
+        $position = $this->getPosition($this->setPosition());
+        if ($position[0]['positionName'] == "HR Staff" || $position[0]['positionName'] == "President") {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public function setSessionID()

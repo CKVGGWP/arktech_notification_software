@@ -18,7 +18,7 @@
 
     <!-- End of Header -->
 
- <!-- Start of Sidebar -->
+    <!-- Start of Sidebar -->
 
     <div class="container-fluid">
         <div class="row">
@@ -26,11 +26,13 @@
 
             <!-- End of Sidebar -->
 
-    <!-- Start of index -->
+            <!-- Start of index -->
 
-    <?php include('views/index/val_body.php'); ?>
+            <?php include('views/index/val_body.php'); ?>
 
-    <!-- End of index -->
+            <!-- End of index -->
+        </div>
+    </div>
 
     <!-- Start of Footer -->
 

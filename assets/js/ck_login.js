@@ -27,6 +27,8 @@ $(document).ready(function () {
             $("#loginError").html("Username is incorrect");
           } else if (response == "3") {
             $("#loginError").html("Password is incorrect");
+          } else if (response == "4") {
+            $("#loginError").html("You cannot access this page");
           }
         },
       });

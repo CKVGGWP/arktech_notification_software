@@ -3,7 +3,7 @@
         <h1 class="h2"></h1>
         <div class="btn-toolbar">
             <div>
-                <a href="val_notifications.php?title=Notifications" class="btn btn-lg btn-outline-dark" type="button">
+                <a href="val_notifications.php?title=Notifications" class="btn btn-lg btn-success" type="button">
                     <i class="fa-solid fa-bell"></i></i> <br> Notification</a>
             </div>
         </div>

@@ -6,19 +6,26 @@
 
     <?php include('views/includes/head/head.php'); ?>
     <?php include('controllers/ck_emptySession.php'); ?>
-	<link rel="stylesheet" href="assets/css/slick.css">
+    <link rel="stylesheet" href="assets/css/slick.css">
     <script src="assets/js/slick.min.js"></script>
-	<!-- DISABLE METHOD-->
+    <!-- DISABLE METHOD-->
     <style>
-    	div.dataTables_paginate {
-			display:none;
-		}
+        div.dataTables_paginate {
+            display: none;
+        }
     </style>
 
     <!-- End of Head -->
 </head>
 
 <body>
+
+    <!-- Start of Header -->
+
+    <?php include('views/includes/header/charise_header.php'); ?>
+
+    <!-- End of Header -->
+
     <!-- Start of index -->
 
     <?php include('views/notifications/val_body.php'); ?>
@@ -29,6 +36,7 @@
 
     <?php include('views/includes/footer/footer.php'); ?>
     <script src="assets/js/val_notifications.js"></script>
+    <script src="assets/js/ck_custom.js"></script>
 
     <!-- End of Footer -->
 </body>

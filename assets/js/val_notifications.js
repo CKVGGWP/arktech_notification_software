@@ -1,35 +1,74 @@
 // Server-side processing with object sourced data
 $(document).ready(function () {
-  var dataTable = $("#userTable").DataTable({
-    lengthChange: false,
-    searching: false,
-    processing: true,
-    ordering: false,
-    serverSide: true,
-    bInfo: false,
-    ajax: {
-      url: "controllers/val_notificationsController.php", // json datasource
-      type: "POST", // method  , by default get
-      /*
+  getDataTable();
+
+  function getDataTable() {
+    let dataTable = $("#userTable").DataTable({
+      lengthChange: false,
+      searching: false,
+      processing: true,
+      ordering: false,
+      serverSide: true,
+      bInfo: false,
+      ajax: {
+        url: "controllers/val_notificationsController.php", // json datasource
+        type: "POST", // method  , by default get
+        /*
 	  success: function (row, data, index) {
-        console.log(row);
-      },
+	  console.log(row);
+	  },
       */
 
-      error: function () {
-        // error handling
+        error: function () {
+          // error handling
+        },
       },
-    },
-    createdRow: function (row, data, index) {},
-    columnDefs: [],
-    fixedColumns: false,
-    deferRender: true,
-    scrollY: 500,
-    scrollX: false,
-    scroller: {
-      loadingIndicator: true,
-    },
-    stateSave: false,
+      createdRow: function (row, data, index) {},
+      columnDefs: [],
+      fixedColumns: false,
+      deferRender: true,
+      scrollY: 500,
+      scrollX: false,
+      scroller: {
+        loadingIndicator: true,
+      },
+      stateSave: false,
+    });
+  }
+
+  $(".filterButtons").on("click", function () {
+    let notificationType = $(this).val();
+
+    $("#userTable").DataTable().clear().destroy();
+    $("#userTable").DataTable().destroy();
+
+    let dataTable = $("#userTable").DataTable({
+      lengthChange: false,
+      searching: false,
+      processing: true,
+      ordering: false,
+      serverSide: true,
+      bInfo: false,
+      // Get the data from the controller
+      ajax: {
+        url: "controllers/val_notificationsController.php", // json datasource
+        type: "POST", // method , by default get
+        data: { newType: 1, notificationType: notificationType },
+        error: function () {
+          // error handling
+        },
+      },
+      createdRow: function (row, data, index) {},
+      columnDefs: [],
+      fixedColumns: false,
+      deferRender: true,
+      scrollY: 500,
+      scrollX: false,
+      scroller: {
+        loadingIndicator: true,
+      },
+      stateSave: false,
+    });
   });
 });
 

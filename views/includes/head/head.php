@@ -5,8 +5,9 @@
     <link rel="stylesheet" href="assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="assets/css/sweetalert2.css">
     <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="shortcut icon" href="assets/images/arkLogoHD.png">
     <script src="assets/js/jquery.min.js"></script>
-	<script src="assets/js/datatables.min.js"></script>
+    <script src="assets/js/datatables.min.js"></script>
     <?php include('models/ck_functions.php'); ?>
     <?php session_start(); ?>
     <title><?php echo getTitle(); ?></title>
