@@ -43,4 +43,27 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal -->
+
+    <?php if ($notification->getPosition($_SESSION['userID']) != "HR Staff") : ?>
+
+        <!-- View Modal For Leave Form -->
+
+        <div class="modal fade" id="viewLeaveModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" id="viewLeaveDetails">
+
+            </div>
+        </div>
+
+    <?php else : ?>
+
+        <!-- View HR Modal -->
+        <div class="modal fade" id="viewHRModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" id="viewHRDetails">
+
+            </div>
+        </div>
+
+    <?php endif; ?>
 </main>

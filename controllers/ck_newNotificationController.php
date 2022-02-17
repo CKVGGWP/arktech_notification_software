@@ -3,38 +3,47 @@
 require("../models/ck_database.php");
 require("../models/val_notifications.php");
 
+session_start();
+
 $notifications = new Notifications();
+
+$userId = isset($_SESSION['userId']) ? $_SESSION['userId'] : '';
+
+if (isset($_POST['modal'])) {
+    $notificationKey = $_POST['key'];
+    $notificationLink = $_POST['link'];
+
+    if ($notificationLink == "/V4/11-3 Employee Leave/controllers/ck_leaveFormController.php?leaveFormId=" . $notificationKey) {
+        echo $notifications->createLeaveModal($notificationKey);
+    }
+}
+
+if (isset($_POST['modal2'])) {
+    $notificationKey = $_POST['key'];
+    $notificationLink = $_POST['link'];
+
+    if ($notificationLink == "/V4/11-3 Employee Leave/controllers/ck_leaveFormController.php?leaveFormId=" . $notificationKey) {
+        echo $notifications->createHRModal($notificationKey);
+    }
+}
 
 if (isset($_POST['approve'])) {
     $listId = $_POST['listId'];
-    $approval = $_POST['reasonForApproval'];
-    $leaveFrom = $_POST['leaveFrom'];
-    $leaveTo = $_POST['leaveTo'];
-    $status = "approve";
+    $approval = $_POST['headRemark'];
+    $status = $_POST['decisionOfHead'];
 
-    $newLeaveFrom = date("Y-m-d", strtotime($leaveFrom));
-    $newLeaveTo = date("Y-m-d", strtotime($leaveTo));
-
-    $notifications->leaveFormApproval($listId, $status, $approval, $newLeaveFrom, $newLeaveTo);
-}
-
-if (isset($_POST['disapprove'])) {
-    $listId = $_POST['listId'];
-    $status = "disapprove";
-    $disapproval = $_POST['reasonForDisapproval'];
-
-    $notifications->leaveFormApproval($listId, $status, $disapproval);
+    $notifications->leaveFormApproval($listId, $status, $approval);
 }
 
 if (isset($_POST['setStatus'])) {
     $leaveType = $_POST['leaveType'];
-    $leaveRemarks = $_POST['leaveRemarks'];
+    $remarks = $_POST['remarks'];
     $status = $_POST['status'];
     $type = $_POST['type'];
     $transpoAllowance = $_POST['transpoAllowance'];
     $quarantine = $_POST['quarantine'];
     $newEmpNum = $_POST['newEmpNum'];
+    $decision = $_POST['decision'];
 
-    $notifications->updateHR($leaveType, $leaveRemarks, $status, $type, $transpoAllowance, $quarantine, $newEmpNum);
+    $notifications->updateHR($decision, $leaveType, $remarks, $status, $type, $transpoAllowance, $quarantine, $newEmpNum);
 }
-

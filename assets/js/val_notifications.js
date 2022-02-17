@@ -72,37 +72,78 @@ $(document).ready(function () {
   });
 });
 
-$(document).on("click", ".employees", function () {
-  let employeeNumber = $(this).data("employee").employeeNumber;
-  let employeeName = $(this).data("employee").employeeName;
-  let designation = $(this).data("employee").designation;
-  let department = $(this).data("employee").department;
-  let purposeOfLeave = $(this).data("employee").purposeOfLeave;
-  let leaveFrom = $(this).data("employee").leaveFrom;
-  let leaveTo = $(this).data("employee").leaveTo;
-  let listId = $(this).data("employee").listId;
-
-  $("#employeeNumber").val(employeeNumber);
-  $("#employeeName").val(employeeName);
-  $("#designation").val(designation);
-  $("#department").val(department);
-  $("#purposeofLeave").val(purposeOfLeave);
-  $("#leaveFrom").val(leaveFrom);
-  $("#leaveTo").val(leaveTo);
-  $("#listId").val(listId);
-});
-
 // CK Start of Code
 
-$(document).on("click", "#approve", function () {
-  let listId = $("#listId").val();
-  let reasonForApproval = $("#reasonForApproval").val();
-  let leaveFrom = $("#leaveFrom").val();
-  let leaveTo = $("#leaveTo").val();
+$(document).on("click", ".employees", function () {
+  let key = $(this).data("notification").notificationKey;
+  let link = $(this).data("notification").notificationLink;
 
-  if (reasonForApproval == "") {
-    $("#reasonForApproval").addClass("is-invalid");
-    $("#reasonForApproval").focus();
+  $.ajax({
+    url: "controllers/ck_newNotificationController.php",
+    type: "POST",
+    data: { modal: 1, key: key, link: link },
+    dataType: "json",
+    success: function (data) {
+      $("#viewLeaveDetails").html(data);
+    },
+  });
+});
+
+$(document).on("click", ".hrEmployees", function () {
+  let key = $(this).data("notification").notificationKey;
+  let link = $(this).data("notification").notificationLink;
+
+  $.ajax({
+    url: "controllers/ck_newNotificationController.php",
+    type: "POST",
+    data: { modal2: 1, key: key, link: link },
+    dataType: "json",
+    success: function (data) {
+      $("#viewHRDetails").html(data);
+    },
+  });
+});
+
+$(document).ready(function () {
+  $(document).prop("disabled", "#submitApproval", true);
+
+  $(document).prop("disabled", "#setStatusBTN", true);
+});
+
+$(document).on("change", "#decisionOfHead", function () {
+  let des = $(this).val();
+
+  if (des == "approve") {
+    $("#approvalHead").removeClass("d-none");
+    $("#disapprovalHead").addClass("d-none");
+    $("#submitApproval").prop("disabled", false);
+  } else if (des == "disapprove") {
+    $("#approvalHead").addClass("d-none");
+    $("#disapprovalHead").removeClass("d-none");
+    $("#submitApproval").prop("disabled", false);
+  } else {
+    $("#approvalHead").addClass("d-none");
+    $("#disapprovalHead").addClass("d-none");
+    $("#submitApproval").prop("disabled", true);
+  }
+});
+
+$(document).on("click", "#submitApproval", function () {
+  let listId = $("#listId").val();
+  let decisionOfHead = $("#decisionOfHead").val();
+  let headRemark = "";
+
+  if (decisionOfHead == "approve") {
+    let approvalHeadRemarks = $("#approvalHeadRemarks").val();
+    headRemark = approvalHeadRemarks;
+  } else if (decisionOfHead == "disapprove") {
+    let disapprovalHeadRemarks = $("#disapprovalHeadRemarks").val();
+    headRemark = disapprovalHeadRemarks;
+  }
+
+  if (headRemark == "") {
+    $("#remarkHeadClass").addClass("is-invalid");
+    $("#remarkHeadClass").focus();
     return false;
   } else {
     $.ajax({
@@ -111,14 +152,13 @@ $(document).on("click", "#approve", function () {
       data: {
         approve: 1,
         listId: listId,
-        reasonForApproval: reasonForApproval,
-        leaveFrom: leaveFrom,
-        leaveTo: leaveTo,
+        decisionOfHead: decisionOfHead,
+        headRemark: headRemark,
       },
       success: function (response) {
         Swal.fire({
           title: "Success",
-          text: "Leave Approved!",
+          text: "Leave Has Been Set!",
           icon: "success",
         }).then((result) => {
           location.reload();
@@ -128,74 +168,51 @@ $(document).on("click", "#approve", function () {
   }
 });
 
-$(document).on("click", "#disapprove", function () {
-  let listId = $("#listId").val();
-  let reasonForDisapproval = $("#reasonForDisapproval").val();
+$(document).on("change", "#decision", function () {
+  let decision = $(this).val();
 
-  if (reasonForDisapproval == "") {
-    $("#reasonForDisapproval").addClass("is-invalid");
-    $("#reasonForDisapproval").focus();
-    return false;
+  if (decision == 3) {
+    $("#approvalHR").removeClass("d-none");
+    $("#disapprovalHR").addClass("d-none");
+    $("#setStatusBTN").prop("disabled", false);
+  } else if (decision == 4) {
+    $("#approvalHR").addClass("d-none");
+    $("#disapprovalHR").removeClass("d-none");
+    $("#setStatusBTN").prop("disabled", false);
   } else {
-    $.ajax({
-      url: "controllers/ck_newNotificationController.php",
-      type: "POST",
-      data: {
-        disapprove: 1,
-        listId: listId,
-        reasonForDisapproval: reasonForDisapproval,
-      },
-      success: function (response) {
-        Swal.fire({
-          title: "Success",
-          text: "Leave Disapproved!",
-          icon: "success",
-        }).then((result) => {
-          location.reload();
-        });
-      },
-    });
+    $("#approvalHR").addClass("d-none");
+    $("#disapprovalHR").addClass("d-none");
+    $("#setStatusBTN").prop("disabled", true);
   }
-});
-
-$(document).on("click", ".hr", function () {
-  let empNum = $(this).data("employee").employeeNumber;
-  let empName = $(this).data("employee").employeeName;
-  let des = $(this).data("employee").designation;
-  let dept = $(this).data("employee").department;
-  let purpose = $(this).data("employee").purposeOfLeave;
-  let from = $(this).data("employee").leaveFrom;
-  let to = $(this).data("employee").leaveTo;
-  let list = $(this).data("employee").listId;
-  let reason = $(this).data("employee").reasonOfSuperior;
-  let date = $(this).data("employee").date;
-
-  $("#empNum").val(empNum);
-  $("#empName").val(empName);
-  $("#des").val(des);
-  $("#dept").val(dept);
-  $("#purpose").val(purpose);
-  $("#from").val(from);
-  $("#to").val(to);
-  $("#list").val(list);
-  $("#reasonOfApproval").val(reason);
-  $("#dateOfApproval").val(date);
-
-  $(".titleName").text(empName + " Leave Details");
 });
 
 $(document).on("click", "#setStatusBTN", function () {
-  let leaveType = $("#leaveType").val();
-  let leaveRemarks = $("#leaveRemarks").val();
-  let status = $("#status").val();
-  let type = $("#type").val();
-  let transpoAllowance = $("#transpoAllowance").val();
-  let quarantine = $("#quarantine").val();
+  let leaveType = $("#leaveType").val() ? $("#leaveType").val() : "";
+  let status = $("#status").val() ? $("#status").val() : "";
+  let type = $("#type").val() ? $("#type").val() : "";
+  let transpoAllowance = $("#transpoAllowance").val()
+    ? $("#transpoAllowance").val()
+    : "";
+  let quarantine = $("#quarantine").val() ? $("#quarantine").val() : "";
   let newEmpNum = $("#empNum").val();
+  let decision = $("#decision").val();
 
-  if (leaveRemarks == "") {
-    $("#leaveRemarks").addClass("is-invalid");
-    $("#leaveRemarks").focus();
+  let remarks = "";
+
+  if (decision == 3) {
+    let leaveRemarks = $("#leaveRemarks").val();
+    remarks = leaveRemarks;
+  } else if (decision == 4) {
+    let disapprovalRemarks = $("#disapprovalRemarks").val();
+    remarks = disapprovalRemarks;
+  } else {
+    $(this).prop("disabled", true);
+    return false;
+  }
+
+  if (remarks == "") {
+    $(".remarkClass").addClass("is-invalid");
+    $(".remarkClass").focus();
     return false;
   } else {
     $.ajax({
@@ -203,8 +220,9 @@ $(document).on("click", "#setStatusBTN", function () {
       type: "POST",
       data: {
         setStatus: 1,
+        decision: decision,
         leaveType: leaveType,
-        leaveRemarks: leaveRemarks,
+        remarks: remarks,
         status: status,
         type: type,
         transpoAllowance: transpoAllowance,
