@@ -14,6 +14,7 @@
                                         <div class="next-two"><i class="fa-solid fa-angles-right"></i></div>
                                     </div>
                                     <div class="slider-list multiple-slides">
+                                        <button type="button" class="btn btn-outline-success mx-3 filterButtons" value="">All <br> <?php echo $countAllNotification; ?></button>
                                         <?php while ($row = mysqli_fetch_assoc($notificationType)) : ?>
                                             <button type="button" class="btn btn-outline-success mx-3 filterButtons" value="<?php echo $row['listId'] ?>"> <?php echo $row['notificationName']; ?> <br> <?php echo $row['typeCount']; ?> </button>
                                         <?php endwhile; ?>

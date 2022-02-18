@@ -74,40 +74,35 @@ $(document).ready(function () {
 
 // CK Start of Code
 
-$(document).on("click", ".employees", function () {
-  let key = $(this).data("notification").notificationKey;
-  let link = $(this).data("notification").notificationLink;
-
-  $.ajax({
-    url: "controllers/ck_newNotificationController.php",
-    type: "POST",
-    data: { modal: 1, key: key, link: link },
-    dataType: "json",
-    success: function (data) {
-      $("#viewLeaveDetails").html(data);
-    },
-  });
-});
-
-$(document).on("click", ".hrEmployees", function () {
-  let key = $(this).data("notification").notificationKey;
-  let link = $(this).data("notification").notificationLink;
-
-  $.ajax({
-    url: "controllers/ck_newNotificationController.php",
-    type: "POST",
-    data: { modal2: 1, key: key, link: link },
-    dataType: "json",
-    success: function (data) {
-      $("#viewHRDetails").html(data);
-    },
-  });
+$(document).ready(function () {
+  let hiddenId = $("#hiddenId").val();
+  if ($("#viewLeaveDetails").length == 0) {
+    $.ajax({
+      url: "controllers/ck_newNotificationController.php",
+      type: "POST",
+      data: { modal2: 1, hiddenId: hiddenId },
+      dataType: "json",
+      success: function (data) {
+        $("#viewHRDetails").html(data);
+      },
+    });
+  } else {
+    $.ajax({
+      url: "controllers/ck_newNotificationController.php",
+      type: "POST",
+      data: { modal: 1, hiddenId: hiddenId },
+      dataType: "json",
+      success: function (data) {
+        $("#viewLeaveDetails").html(data);
+      },
+    });
+  }
 });
 
 $(document).ready(function () {
-  $(document).prop("disabled", "#submitApproval", true);
+  $("#submitApproval").prop("disabled", true);
 
-  $(document).prop("disabled", "#setStatusBTN", true);
+  $("#setStatusBTN").prop("disabled", true);
 });
 
 $(document).on("change", "#decisionOfHead", function () {

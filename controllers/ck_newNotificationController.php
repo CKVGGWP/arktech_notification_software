@@ -10,21 +10,15 @@ $notifications = new Notifications();
 $userId = isset($_SESSION['userId']) ? $_SESSION['userId'] : '';
 
 if (isset($_POST['modal'])) {
-    $notificationKey = $_POST['key'];
-    $notificationLink = $_POST['link'];
+    $notificationKey = $_POST['hiddenId'];
 
-    if ($notificationLink == "/V4/11-3 Employee Leave/controllers/ck_leaveFormController.php?leaveFormId=" . $notificationKey) {
-        echo $notifications->createLeaveModal($notificationKey);
-    }
+    echo $notifications->createLeaveModal($notificationKey);
 }
 
 if (isset($_POST['modal2'])) {
-    $notificationKey = $_POST['key'];
-    $notificationLink = $_POST['link'];
+    $notificationKey = $_POST['hiddenId'];
 
-    if ($notificationLink == "/V4/11-3 Employee Leave/controllers/ck_leaveFormController.php?leaveFormId=" . $notificationKey) {
-        echo $notifications->createHRModal($notificationKey);
-    }
+    echo $notifications->createHRModal($notificationKey);
 }
 
 if (isset($_POST['approve'])) {

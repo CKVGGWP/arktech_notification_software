@@ -10,7 +10,8 @@ class Notifications extends Database
                   d.notificationId,
                   d.notificationDetail,
                   d.notificationKey,
-                  d.notificationLink 
+                  d.notificationLink,
+                  d.notificationType 
                   FROM system_notificationdetails d
                   LEFT JOIN system_notification n ON n.notificationId = d.notificationId";
 
@@ -22,24 +23,27 @@ class Notifications extends Database
 
         $query .= " ORDER BY notificationId DESC";
 
-
         $sql = $this->connect()->query($query);
         $data = [];
         $totalData = 0;
         if ($sql->num_rows > 0) {
+
             while ($result = $sql->fetch_assoc()) {
                 extract($result);
                 $button = '';
-                if ($this->getPosition($userId) == "HR Staff") {
-                    $button .= '<button type="button" class="btn btn-warning hrEmployees" data-bs-toggle="modal" data-bs-target="#viewHRModal"
-                            data-notification=\'{"notificationKey":"' . $notificationKey . '","notificationLink":"' . $notificationLink . '"}\'>
-  						    View
-					        </button>';
+
+                $getFile = explode("?", $notificationLink);
+                $newFile = $getFile[0];
+
+                if (file_exists('../../../' . $newFile)) {
+
+                    $button .= '<a href="../..' . $notificationLink . '&title=Notification" class="btn btn-warning">
+  						        Redirect
+					            </a>';
                 } else {
-                    $button .= '<button type="button" class="btn btn-warning employees" data-bs-toggle="modal" data-bs-target="#viewLeaveModal"
-                            data-notification=\'{"notificationKey":"' . $notificationKey . '","notificationLink":"' . $notificationLink . '"}\'>
-  						    View
-					        </button>';
+                    $button .= '<a href="error.php" class="btn btn-danger">
+  						        Not Found
+					            </a>';
                 }
 
                 $data[] = [
@@ -94,15 +98,6 @@ class Notifications extends Database
 
         $data = $this->getLeaveForm($notificationKey);
 
-        $html .= '
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="staticBackdropLabel">Notification Details</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">';
-
-
         foreach ($data as $key => $result) :
 
             $html .= '<div class="form-group mb-2 row">
@@ -142,11 +137,11 @@ class Notifications extends Database
                     <div class="form-group mb-2 row">
                         <div class="col-md-6">
                             <label class="col-sm-5">Leave From:</label>
-                            <input readonly class="form-control" id="leaveFrom" name="leaveFrom" value="' . $result['leaveFrom'] . '"></input>
+                            <input readonly class="form-control" id="leaveFrom" name="leaveFrom" value="' . date("F j, Y", strtotime($result['leaveFrom'])) . '"></input>
                         </div>
                         <div class="col-md-6">
                             <label class="col-sm-5">Leave To:</label>
-                            <input readonly class="form-control" id="leaveTo" name="leaveTo" value="' . $result['leaveTo'] . '"></input>
+                            <input readonly class="form-control" id="leaveTo" name="leaveTo" value="' . date("F j, Y", strtotime($result['leaveTo'])) . '"></input>
                         </div>
                     </div>
                     <div class="form-group mb-2">
@@ -187,7 +182,6 @@ class Notifications extends Database
 
         $html .= '<div class="modal-footer">
                     <button type="button" class="btn btn-primary" id="submitApproval">Submit</button>
-                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
                 </div>
             </div>';
 
@@ -199,15 +193,6 @@ class Notifications extends Database
         $html = '';
 
         $data = $this->getLeaveForm($notificationKey);
-
-        $html .= '
-                
-                <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title titleName" id="staticBackdropLabel">Notification Details</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">';
 
         foreach ($data as $key => $newResult) :
 
@@ -248,11 +233,11 @@ class Notifications extends Database
                     <div class="form-group mb-2 row">
                         <div class="col-md-6">
                             <label class="col-sm-5">Leave From:</label>
-                            <input readonly class="form-control" id="from" name="from" value="' . $newResult['leaveFrom'] . '"></input>
+                            <input readonly class="form-control" id="from" name="from" value="' . date("F j, Y", strtotime($newResult['leaveFrom'])) . '"></input>
                         </div>
                         <div class="col-md-6">
                             <label class="col-sm-5">Leave To:</label>
-                            <input readonly class="form-control" id="to" name="to" value="' . $newResult['leaveTo'] . '"></input>
+                            <input readonly class="form-control" id="to" name="to" value="' . date("F j, Y", strtotime($newResult['leaveTo'])) . '"></input>
                         </div>
                     </div>
                     <div class="form-group mb-2">
@@ -315,10 +300,10 @@ class Notifications extends Database
                         </div>
                         <div class="form-group mb-2 row">
                             <div class="col-md-6">
-                                <label class="col-sm-5">Status</label>
+                                <label class="col-sm-5">With Payment</label>
                                 <select name="status" id="status" class="form-control">
-                                    <option value="1">With Pay</option>
                                     <option value="0">Without Pay</option>
+                                    <option value="1">With Pay</option>
                                 </select>
                             </div>
                             <div class="col-md-6">
@@ -336,8 +321,8 @@ class Notifications extends Database
                             <div class="col-md-6">
                                 <label class="col-sm-12">Trasportation Allowance (if any)</label>
                                 <select name="transpoAllowance" id="transpoAllowance" class="form-control">
-                                    <option value="1">Yes</option>
                                     <option value="0">No</option>
+                                    <option value="1">Yes</option>
                                 </select>
                             </div>
                             <div class="col-md-6">
@@ -355,7 +340,6 @@ class Notifications extends Database
 
         $html .= '<div class="modal-footer">
                     <button type="button" class="btn btn-primary" id="setStatusBTN">Set Status</button>
-                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
                 </div>
             </div>';
 
@@ -378,20 +362,17 @@ class Notifications extends Database
     public function countNotification($position = '')
     {
         $HRId = $this->getHRId();
-        $sql = '';
+        $sql = "SELECT 
+                COUNT(listId) AS notifCount 
+                FROM system_notification";
 
-        if ($position == 'HR') {
-            $sql .= "SELECT COUNT(listId) AS notifCount 
-                    FROM system_notification 
-                    WHERE notificationTarget = '$HRId' AND notificationStatus = 0";
+        if ($position == 'HR Staff') {
+            $sql .= " WHERE notificationTarget = '$HRId'";
         } else {
-            $sql .= "SELECT COUNT(l.listId) AS notifCount 
-                    FROM system_leaveform l 
-                    LEFT JOIN system_notificationdetails n ON n.notificationKey = l.listId 
-                    LEFT JOIN system_notification s ON s.notificationId = n.notificationId 
-                    WHERE s.notificationTarget = '" . $_SESSION['userID'] . "' AND l.status = '0' 
-                    GROUP BY l.department";
+            $sql .= " WHERE notificationTarget = '" . $_SESSION['userID'] . "'";
         }
+
+        $sql .= " AND notificationStatus = 0";
 
         $query = $this->connect()->query($sql);
 
@@ -452,7 +433,7 @@ class Notifications extends Database
     {
         $leaveId = $this->leaveFormId();
 
-        $link = "/V4/11-3 Employee Leave/controllers/ck_leaveFormController.php?leaveFormId=" . $leaveId;
+        $link = "/V4/14-13 Notification Software/ck_viewNotification.php?leaveFormId=" . $leaveId;
 
         $sql = "INSERT INTO system_notificationdetails 
                 (notificationDetail, notificationKey, notificationLink, notificationType)
@@ -559,10 +540,11 @@ class Notifications extends Database
         }
     }
 
-    private function updateLeaveForm($decision, $id)
+    private function updateLeaveForm($decision, $id, $leaveRemarks)
     {
         $sql = "UPDATE system_leaveform
-                SET status = '$decision'
+                SET status = '$decision',
+                hrRemarks = '$leaveRemarks'
                 WHERE employeeNumber = '$id'";
         $query = $this->connect()->query($sql);
 
@@ -577,7 +559,8 @@ class Notifications extends Database
     {
         $sql = "SELECT 
                 leaveFrom, 
-                leaveTo 
+                leaveTo,
+                purposeOfLeave 
                 FROM system_leaveform 
                 ORDER BY listId DESC 
                 LIMIT 1";
@@ -600,10 +583,11 @@ class Notifications extends Database
 
         $from = $data[0]['leaveFrom'];
         $to = $data[0]['leaveTo'];
+        $purpose = $data[0]['purposeOfLeave'];
 
-        if ($this->updateLeaveForm($decision, $empId)) {
+        if ($this->updateLeaveForm($decision, $empId, $leaveRemarks)) {
             if ($decision == 3) {
-                if ($this->insertToHR($empId, $leaveType, $from, $to, $leaveRemarks, $status, $type, $transpoAllowance, $quarantine)) {
+                if ($this->insertToHR($empId, $leaveType, $from, $to, $purpose, $status, $type, $transpoAllowance, $quarantine)) {
                     if ($this->updateNotification($newKey)) {
                         return true;
                     } else {
@@ -628,13 +612,14 @@ class Notifications extends Database
     {
         $sql = "SELECT 
                 t.listId,
-                t.notificationName, 
-                COUNT(d.notificationId) AS typeCount
+                t.notificationName,
+                d.notificationType, 
+                COUNT(DISTINCT(d.notificationKey)) AS typeCount
                 FROM system_notificationdetails d
                 LEFT JOIN system_notificationtype t ON t.listId = d.notificationType
                 LEFT JOIN system_notification n ON n.notificationId = d.notificationId
                 WHERE notificationTarget = '$id' AND n.notificationStatus = 0
-                GROUP BY notificationName";
+                GROUP BY notificationName, d.notificationKey";
         $query = $this->connect()->query($sql);
 
         return $query;
