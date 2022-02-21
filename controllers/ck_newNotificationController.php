@@ -38,6 +38,7 @@ if (isset($_POST['setStatus'])) {
     $quarantine = $_POST['quarantine'];
     $newEmpNum = $_POST['newEmpNum'];
     $decision = $_POST['decision'];
+    $listId = $_POST['list'];
 
-    $notifications->updateHR($decision, $leaveType, $remarks, $status, $type, $transpoAllowance, $quarantine, $newEmpNum);
+    $notifications->updateHR($decision, $leaveType, $remarks, $status, $type, $transpoAllowance, $quarantine, $newEmpNum, $listId);
 }

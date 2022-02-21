@@ -156,7 +156,7 @@ $(document).on("click", "#submitApproval", function () {
           text: "Leave Has Been Set!",
           icon: "success",
         }).then((result) => {
-          location.reload();
+          window.location.href = "val_notifications.php?title=Notification";
         });
       },
     });
@@ -191,6 +191,7 @@ $(document).on("click", "#setStatusBTN", function () {
   let quarantine = $("#quarantine").val() ? $("#quarantine").val() : "";
   let newEmpNum = $("#empNum").val();
   let decision = $("#decision").val();
+  let list = $("#list").val();
 
   let remarks = "";
 
@@ -223,6 +224,7 @@ $(document).on("click", "#setStatusBTN", function () {
         transpoAllowance: transpoAllowance,
         quarantine: quarantine,
         newEmpNum: newEmpNum,
+        list: list,
       },
       success: function (response) {
         Swal.fire({
@@ -230,7 +232,7 @@ $(document).on("click", "#setStatusBTN", function () {
           text: "Leave Status has been set!",
           icon: "success",
         }).then((result) => {
-          location.reload();
+          window.location.href = "val_notifications.php?title=Notification";
         });
       },
     });

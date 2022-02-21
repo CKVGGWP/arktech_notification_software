@@ -41,7 +41,7 @@ class Notifications extends Database
   						        Redirect
 					            </a>';
                 } else {
-                    $button .= '<a href="error.php" class="btn btn-danger">
+                    $button .= '<a href="../..' . $notificationLink . '" class="btn btn-danger">
   						        Not Found
 					            </a>';
                 }
@@ -252,7 +252,7 @@ class Notifications extends Database
                         <div class="col-md-12 mb-sm-0 mb-1">
                             <div>
                                 <label class="col-sm-6">Date of Approval</label>
-                                <input readonly class="form-control" id="dateOfApproval" name="dateOfApproval" value="' . $newResult['date'] . '"></input>
+                                <input readonly class="form-control" id="dateOfApproval" name="dateOfApproval" value="' . date("F j, Y", strtotime($newResult['date'])) . '"></input>
                             </div>
                         </div>
                     </div>
@@ -348,9 +348,12 @@ class Notifications extends Database
 
     public function getPosition($idNumber)
     {
-        $sql = "SELECT p.positionName FROM hr_employee e 
+        $sql = "SELECT 
+                p.positionName 
+                FROM hr_employee e 
                 LEFT JOIN hr_positions p ON e.position = p.positionId 
                 WHERE e.idNumber = '$idNumber'";
+
         $query = $this->connect()->query($sql);
 
         $result = $query->fetch_assoc();
@@ -362,6 +365,7 @@ class Notifications extends Database
     public function countNotification($position = '')
     {
         $HRId = $this->getHRId();
+
         $sql = "SELECT 
                 COUNT(listId) AS notifCount 
                 FROM system_notification";
@@ -394,11 +398,17 @@ class Notifications extends Database
         $sql = '';
         $data = '';
         if ($status == "disapprove") {
-            $sql .= "UPDATE system_leaveform SET status = 4, reasonOfSuperior = '$remarks', date = NOW() WHERE listId = '$id'";
-        } else if (
-            $status == "approve"
-        ) {
-            $sql .= "UPDATE system_leaveform SET status = 2, reasonOfSuperior = '$remarks', date = NOW() WHERE listId = '$id'";
+            $sql .= "UPDATE system_leaveform 
+                     SET status = 4, 
+                     reasonOfSuperior = '$remarks', 
+                     date = NOW() 
+                     WHERE listId = '$id'";
+        } else if ($status == "approve") {
+            $sql .= "UPDATE system_leaveform 
+                     SET status = 2, 
+                     reasonOfSuperior = '$remarks', 
+                     date = NOW() 
+                     WHERE listId = '$id'";
         }
 
         $query = $this->connect()->query($sql);
@@ -406,7 +416,7 @@ class Notifications extends Database
         if ($query) {
             if ($this->updateNotification($id)) {
                 if ($status == "approve") {
-                    if ($this->insertHRNotification()) {
+                    if ($this->insertHRNotification($id)) {
                         $keys = $this->lastNotificationId();
                         if ($this->insertSystemNotificationHR($keys)) {
                             $data = "1";
@@ -429,15 +439,13 @@ class Notifications extends Database
         return $data;
     }
 
-    private function insertHRNotification()
+    private function insertHRNotification($id)
     {
-        $leaveId = $this->leaveFormId();
-
-        $link = "/V4/14-13 Notification Software/ck_viewNotification.php?leaveFormId=" . $leaveId;
+        $link = "/V4/14-13 Notification Software/ck_viewNotification.php?leaveFormId=" . $id;
 
         $sql = "INSERT INTO system_notificationdetails 
                 (notificationDetail, notificationKey, notificationLink, notificationType)
-                VALUES('You have a leave application waiting for approval', '$leaveId', '$link', '38')";
+                VALUES('You have a leave application waiting for approval', '$id', '$link', '38')";
         $query = $this->connect()->query($sql);
 
         if ($query) {
@@ -445,22 +453,6 @@ class Notifications extends Database
         } else {
             return false;
         }
-    }
-
-    private function leaveFormId()
-    {
-        $sql = "SELECT 
-                listId 
-                FROM system_leaveform 
-                ORDER BY listId DESC 
-                LIMIT 1";
-        $query = $this->connect()->query($sql);
-
-        if ($result = $query->fetch_assoc()) {
-            $id = $result['listId'];
-        }
-
-        return $id;
     }
 
     private function insertSystemNotificationHR($key)
@@ -513,10 +505,13 @@ class Notifications extends Database
 
     private function updateNotification($id)
     {
-        $sql = "UPDATE system_notification s
-                LEFT JOIN system_notificationdetails n ON s.notificationId = n.notificationId
-                SET s.notificationStatus = 1 
-                WHERE n.notificationKey = '$id'";
+        $sql = '';
+
+        $sql .= "UPDATE system_notification n
+                 LEFT JOIN system_notificationdetails s ON s.notificationId = n.notificationId
+                 SET n.notificationStatus = 1
+                 WHERE s.notificationKey = '$id' AND n.notificationStatus = 0";
+
         $query = $this->connect()->query($sql);
 
         if ($query) {
@@ -545,7 +540,7 @@ class Notifications extends Database
         $sql = "UPDATE system_leaveform
                 SET status = '$decision',
                 hrRemarks = '$leaveRemarks'
-                WHERE employeeNumber = '$id'";
+                WHERE listId = '$id'";
         $query = $this->connect()->query($sql);
 
         if ($query) {
@@ -555,15 +550,14 @@ class Notifications extends Database
         }
     }
 
-    private function getLeaveDates()
+    private function getLeaveDates($listId)
     {
         $sql = "SELECT 
                 leaveFrom, 
                 leaveTo,
                 purposeOfLeave 
                 FROM system_leaveform 
-                ORDER BY listId DESC 
-                LIMIT 1";
+                WHERE listId = '$listId'";
         $query = $this->connect()->query($sql);
 
         $data = array();
@@ -575,20 +569,18 @@ class Notifications extends Database
         return $data;
     }
 
-    public function updateHR($decision, $leaveType, $leaveRemarks, $status, $type, $transpoAllowance, $quarantine, $empId)
+    public function updateHR($decision, $leaveType, $leaveRemarks, $status, $type, $transpoAllowance, $quarantine, $empId, $listId)
     {
-        $newKey = $this->leaveFormId();
-
-        $data = $this->getLeaveDates();
+        $data = $this->getLeaveDates($listId);
 
         $from = $data[0]['leaveFrom'];
         $to = $data[0]['leaveTo'];
         $purpose = $data[0]['purposeOfLeave'];
 
-        if ($this->updateLeaveForm($decision, $empId, $leaveRemarks)) {
+        if ($this->updateLeaveForm($decision, $listId, $leaveRemarks)) {
             if ($decision == 3) {
                 if ($this->insertToHR($empId, $leaveType, $from, $to, $purpose, $status, $type, $transpoAllowance, $quarantine)) {
-                    if ($this->updateNotification($newKey)) {
+                    if ($this->updateNotification($listId)) {
                         return true;
                     } else {
                         return false;
@@ -597,7 +589,7 @@ class Notifications extends Database
                     return false;
                 }
             } else {
-                if ($this->updateNotification($newKey)) {
+                if ($this->updateNotification($listId)) {
                     return true;
                 } else {
                     return false;

@@ -2,7 +2,6 @@
 
 class Database
 {
-
     private $host = "localhost";
     private $dbName = "arktechdatabase";
     private $username = "root";
