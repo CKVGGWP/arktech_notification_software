@@ -10,4 +10,5 @@
     <script src="assets/js/datatables.min.js"></script>
     <?php include('models/ck_functions.php'); ?>
     <?php session_start(); ?>
+    <?php date_default_timezone_set('Asia/Manila'); ?>
     <title><?php echo getTitle(); ?></title>
