@@ -348,12 +348,9 @@ class Notifications extends Database
 
     public function getPosition($idNumber)
     {
-        $sql = "SELECT 
-                p.positionName 
-                FROM hr_employee e 
+        $sql = "SELECT p.positionName FROM hr_employee e 
                 LEFT JOIN hr_positions p ON e.position = p.positionId 
                 WHERE e.idNumber = '$idNumber'";
-
         $query = $this->connect()->query($sql);
 
         $result = $query->fetch_assoc();
@@ -365,7 +362,6 @@ class Notifications extends Database
     public function countNotification($position = '')
     {
         $HRId = $this->getHRId();
-
         $sql = "SELECT 
                 COUNT(listId) AS notifCount 
                 FROM system_notification";
@@ -373,7 +369,7 @@ class Notifications extends Database
         if ($position == 'HR Staff') {
             $sql .= " WHERE notificationTarget = '$HRId'";
         } else {
-            $sql .= " WHERE notificationTarget = '" . $_SESSION['userID'] . "'";
+            $sql .= " WHERE notificationTarget = '" . $_SESSION['idNumber'] . "'";
         }
 
         $sql .= " AND notificationStatus = 0";
@@ -399,15 +395,11 @@ class Notifications extends Database
         $data = '';
         if ($status == "disapprove") {
             $sql .= "UPDATE system_leaveform 
-                     SET status = 4, 
-                     reasonOfSuperior = '$remarks', 
-                     date = NOW() 
+                     SET status = 4, reasonOfSuperior = '$remarks', date = NOW() 
                      WHERE listId = '$id'";
         } else if ($status == "approve") {
             $sql .= "UPDATE system_leaveform 
-                     SET status = 2, 
-                     reasonOfSuperior = '$remarks', 
-                     date = NOW() 
+                     SET status = 2, reasonOfSuperior = '$remarks', date = NOW() 
                      WHERE listId = '$id'";
         }
 
@@ -521,23 +513,6 @@ class Notifications extends Database
         }
     }
 
-    private function insertToHR($weekHoliday, $id, $leaveType, $from, $to, $remarks, $status, $type, $allowance, $flag)
-    {
-        $interval = new DateInterval('P1D');
-        $to = new DateTime($to);
-        $to->add($interval);
-
-        $period = new DatePeriod(new DateTime($from), $interval, $to);
-
-        foreach ($period as $date) {
-            // Check if $dates is inside the array of weekHoliday
-            if (in_array($date->format('Y-m-d'), $weekHoliday)) {
-                // if it is, make the $to date one day less than the $weekHoliday
-                $to = new DateTime($weekHoliday[count($weekHoliday) - 1]);
-            }
-        }
-    }
-
     private function updateLeaveForm($decision, $id, $leaveRemarks)
     {
         $sql = "UPDATE system_leaveform
@@ -572,9 +547,50 @@ class Notifications extends Database
         return $data;
     }
 
-    private function getHolidayDay($monthNum, $year, $to, $toYear)
+    private function insertToHR($weekHoliday, $id, $leaveType, $from, $to, $remarks, $status, $type, $allowance, $flag)
     {
-        $sql = "SELECT DAY(holidayDate) AS holidayDay 
+        $startingDateQuery = $from->format("Y-m-d");
+        $incremental = 0;
+
+
+        while ($weekHoliday[$incremental] <= $startingDateQuery) {
+            $incremental++;
+        }
+
+        while ($from <= $to) {
+            $fromDates = $from->format("Y-m-d");
+
+            if ($fromDates == $weekHoliday[$incremental] || $from == $to) {
+
+                if ($from != $to) {
+                    $from->modify('-1 day');
+                }
+                $endingDateQuery = $from->format("Y-m-d");
+                $from->modify('+2 day');
+
+                if ($endingDateQuery != $weekHoliday[$incremental - 1]) {
+                    $sql = "INSERT INTO hr_leave 
+                            (employeeId, leaveType, leaveDate, leaveDateUntil, leaveRemarks, status, type, transpoAllowance, quarantineFlag)
+                            VALUES ('$id', '$leaveType', '$startingDateQuery', '$endingDateQuery', '$remarks', '$status', '$type', '$allowance', '$flag')";
+                    $query = $this->connect()->query($sql);
+                }
+                $startingDateQuery = $from->format("Y-m-d");
+                $incremental++;
+            } else {
+                $from->modify('+1 day');
+            }
+        }
+
+        if ($query) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private function getHolidayDay($monthNum, $year, $to, $toYear, $startDate, $endDate)
+    {
+        $sql = "SELECT holidayDate AS holidayDay 
 			    FROM hr_holiday 
 			    WHERE MONTH(holidayDate) IN ('$monthNum', '$to') AND YEAR(holidayDate) IN ('$year', '$toYear')
 			    ORDER BY holidayDay";
@@ -583,26 +599,23 @@ class Notifications extends Database
         $data = array();
 
         while ($result = $query->fetch_assoc()) {
-            $data[] = $result;
+            $data[] = $result['holidayDay'];
         }
 
-        return $data;
-    }
-
-    private function getSunday($holidayDay, $startDate, $endDate)
-    {
+        $startDate = new DateTime($startDate);
+        $endDate = new DateTime($endDate);
 
         while ($startDate <= $endDate) {
             if ($startDate->format("D") == "Sun") {
-                array_push($holidayDay, $startDate->format("d"));
+                array_push($data, $startDate->format("Y-m-d"));
             }
             $startDate->modify('+1 day');
         }
 
-        $holidayDay = array_unique($holidayDay);
-        sort($holidayDay);
+        $data = array_unique($data);
+        sort($data);
 
-        return $holidayDay;
+        return $data;
     }
 
     public function updateHR($decision, $leaveType, $leaveRemarks, $status, $type, $transpoAllowance, $quarantine, $empId, $listId)
@@ -615,19 +628,18 @@ class Notifications extends Database
         $fromDay = date('d', strtotime($from));
         $fromMonthNum = date("m", strtotime($from));
         $fromYear = date("Y", strtotime($from));
+        $toDay = date('d', strtotime($to));
         $toMonthNum = date("m", strtotime($to));
         $toYear = date("Y", strtotime($to));
 
-        $totalDays = cal_days_in_month(CAL_GREGORIAN, $toMonthNum, $toYear);
         $startDate = new DateTime($fromYear . '-' . $fromMonthNum . '-' . $fromDay);
-        $endDate = new DateTime($toYear . '-' . $toMonthNum . '-' . $totalDays);
+        $endDate = new DateTime($toYear . '-' . $toMonthNum . '-' . $toDay);
 
-        $holidayDate = $this->getHolidayDay($fromMonthNum, $fromYear, $toMonthNum, $toYear);
-        $weekHoliday = $this->getSunday($holidayDate, $startDate, $endDate);
+        $holidayDate = $this->getHolidayDay($fromMonthNum, $fromYear, $toMonthNum, $toYear, $from, $to);
 
         if ($this->updateLeaveForm($decision, $listId, $leaveRemarks)) {
             if ($decision == 3) {
-                if ($this->insertToHR($weekHoliday, $empId, $leaveType, $from, $to, $purpose, $status, $type, $transpoAllowance, $quarantine)) {
+                if ($this->insertToHR($holidayDate, $empId, $leaveType, $startDate, $endDate, $purpose, $status, $type, $transpoAllowance, $quarantine)) {
                     if ($this->updateNotification($listId)) {
                         return true;
                     } else {
@@ -654,12 +666,12 @@ class Notifications extends Database
                 t.listId,
                 t.notificationName,
                 d.notificationType, 
-                COUNT(DISTINCT(d.notificationKey)) AS typeCount
+                COUNT(d.notificationKey) AS typeCount
                 FROM system_notificationdetails d
                 LEFT JOIN system_notificationtype t ON t.listId = d.notificationType
                 LEFT JOIN system_notification n ON n.notificationId = d.notificationId
                 WHERE notificationTarget = '$id' AND n.notificationStatus = 0
-                GROUP BY notificationName, d.notificationKey";
+                GROUP BY notificationName";
         $query = $this->connect()->query($sql);
 
         return $query;
