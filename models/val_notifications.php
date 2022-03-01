@@ -485,7 +485,7 @@ class Notifications extends Database
                 e.idNumber 
                 FROM hr_employee e
                 LEFT JOIN hr_positions p ON e.position = p.positionId
-                WHERE p.positionName = 'HR Staff'";
+                WHERE p.positionName = 'HR Staff' AND e.status = 1";
         $query = $this->connect()->query($sql);
 
         if ($result = $query->fetch_assoc()) {
