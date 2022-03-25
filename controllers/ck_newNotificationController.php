@@ -21,6 +21,20 @@ if (isset($_POST['modal2'])) {
     echo $notifications->createHRModal($notificationKey);
 }
 
+if (isset($_POST['modal3'])) {
+    $notificationKey = $_POST['hiddenId'];
+
+    echo $notifications->createLeaderModal($notificationKey);
+}
+
+if (isset($_POST['approveLeader'])) {
+    $listId = $_POST['listId'];
+    $approval = $_POST['leaderRemark'];
+    $status = $_POST['decisionOfLeader'];
+
+    $notifications->leaderFormApproval($listId, $status, $approval);
+}
+
 if (isset($_POST['approve'])) {
     $listId = $_POST['listId'];
     $approval = $_POST['headRemark'];

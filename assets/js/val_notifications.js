@@ -86,7 +86,7 @@ $(document).ready(function () {
         $("#viewHRDetails").html(data);
       },
     });
-  } else {
+  } else if ($("#viewHRDetails").length == 0) {
     $.ajax({
       url: "controllers/ck_newNotificationController.php",
       type: "POST",
@@ -96,6 +96,16 @@ $(document).ready(function () {
         $("#viewLeaveDetails").html(data);
       },
     });
+  } else {
+    $.ajax({
+      url: "controllers/ck_newNotificationController.php",
+      type: "POST",
+      data: { modal3: 1, hiddenId: hiddenId },
+      dataType: "json",
+      success: function (data) {
+        $("#viewLeaderDetails").html(data);
+      },
+    });
   }
 });
 
@@ -103,6 +113,66 @@ $(document).ready(function () {
   $("#submitApproval").prop("disabled", true);
 
   $("#setStatusBTN").prop("disabled", true);
+
+  $("#submitLeaderApproval").prop("disabled", true);
+});
+
+$(document).on("change", "#decisionOfLeader", function () {
+  let des = $(this).val();
+
+  if (des == "approve") {
+    $("#approvalLeader").removeClass("d-none");
+    $("#disapprovalLeader").addClass("d-none");
+    $("#submitLeaderApproval").prop("disabled", false);
+  } else if (des == "disapprove") {
+    $("#approvalLeader").addClass("d-none");
+    $("#disapprovalLeader").removeClass("d-none");
+    $("#submitLeaderApproval").prop("disabled", false);
+  } else {
+    $("#approvalLeader").addClass("d-none");
+    $("#disapprovalLeader").addClass("d-none");
+    $("#submitLeaderApproval").prop("disabled", true);
+  }
+});
+
+$(document).on("click", "#submitLeaderApproval", function () {
+  let listId = $("#listId").val();
+  let decisionOfLeader = $("#decisionOfLeader").val();
+  let leaderRemark = "";
+
+  if (decisionOfLeader == "approve") {
+    let approvalLeaderRemarks = $("#approvalLeaderRemarks").val();
+    leaderRemark = approvalLeaderRemarks;
+  } else if (decisionOfLeader == "disapprove") {
+    let disapprovalLeaderRemarks = $("#disapprovalLeaderRemarks").val();
+    leaderRemark = disapprovalLeaderRemarks;
+  }
+
+  if (leaderRemark == "") {
+    $("#remarkLeaderClass").addClass("is-invalid");
+    $("#remarkLeaderClass").focus();
+    return false;
+  } else {
+    $.ajax({
+      url: "controllers/ck_newNotificationController.php",
+      type: "POST",
+      data: {
+        approveLeader: 1,
+        listId: listId,
+        decisionOfLeader: decisionOfLeader,
+        leaderRemark: leaderRemark,
+      },
+      success: function (response) {
+        Swal.fire({
+          title: "Success",
+          text: "Leave Has Been Set!",
+          icon: "success",
+        }).then((result) => {
+          window.location.href = "val_notifications.php?title=Notification";
+        });
+      },
+    });
+  }
 });
 
 $(document).on("change", "#decisionOfHead", function () {
@@ -225,6 +295,12 @@ $(document).on("click", "#setStatusBTN", function () {
         quarantine: quarantine,
         newEmpNum: newEmpNum,
         list: list,
+      },
+      beforeSend: function () {
+        $(this).prop("disabled", true);
+      },
+      complete: function () {
+        $(this).prop("disabled", false);
       },
       success: function (response) {
         Swal.fire({

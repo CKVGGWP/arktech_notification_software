@@ -11,6 +11,10 @@
                     <div class="card-body" id="viewHRDetails">
 
                     </div>
+                <?php elseif ($position == "Team Leader") : ?>
+                    <div class="card-body" id="viewLeaderDetails">
+
+                    </div>
                 <?php else : ?>
                     <div class="card-body" id="viewLeaveDetails">
 
