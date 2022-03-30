@@ -136,6 +136,7 @@ class Notifications extends Database
                 designation,
                 department,
                 purposeOfLeave,
+                halfDayFlag,
                 leaveFrom,
                 leaveTo,
                 documents,
@@ -161,8 +162,13 @@ class Notifications extends Database
         $html = '';
 
         $data = $this->getLeaveForm($notificationKey);
-
+        $half = '';
         foreach ($data as $key => $result2) :
+            if ($result2['halfDayFlag'] == "1") {
+                $half .= "Half Day";
+            } else {
+                $half .= "Whole Day";
+            }
             if ($result2['documents'] != "") {
                 $html .= '<div class="col-sm-12 mb-sm-0 mb-5">
                         <div class="row">
@@ -174,53 +180,58 @@ class Notifications extends Database
             }
             $html .= '<div class="form-group mb-2 row">
                         <div class="col-md-6">
-                            <label class="col-sm-5">Employee No.</label>
+                            <label class="col-sm-5 fw-bold">Employee No.</label>
                             <input readonly class="form-control" id="employeeNumber" name="employeeNumber" value="' . $result2['employeeNumber'] . '"></input>
                         </div>
                         <div class="col-md-6">
-                            <label class="col-sm-5">Employee Name</label>
+                            <label class="col-sm-5 fw-bold">Employee Name</label>
                             <input readonly class="form-control" id="employeeName" name="employeeName" value="' . $result2['employeeName'] . '"></input>
                         </div>
                     </div>
                     <div class="col-sm-12 mb-sm-0 mb-1" hidden>
                         <div class="row">
-                            <label class="col-sm-5">List ID</label>
+                            <label class="col-sm-5 fw-bold">List ID</label>
                             <input readonly class="form-control" id="listId" name="listId" value="' . $result2['listId'] . '"></input>
                         </div>
                     </div>
                     <div class="form-group mb-2 row">
                         <div class="col-md-6">
-                            <label class="col-sm-5">Designation</label>
+                            <label class="col-sm-5 fw-bold">Designation</label>
                             <input readonly class="form-control" id="designation" name="designation" value="' . $result2['designation'] . '"></input>
                         </div>
                         <div class="col-md-6">
-                            <label class="col-sm-5">Department</label>
+                            <label class="col-sm-5 fw-bold">Department</label>
                             <input readonly class="form-control" id="department" name="department" value="' . $result2['department'] . '"></input>
                         </div>
                     </div>
-                    <div class="form-group mb-2">
-                        <div class="col-md-12 mb-sm-0 mb-1">
+                    <div class="form-group mb-2 row">
+                        <div class="col-md-6">
                             <div>
-                                <label class="col-sm-5">Purpose of Leave</label>
+                                <label class="col-sm-5 fw-bold">Purpose of Leave</label>
                                 <textarea readonly class="form-control" id="purposeofLeave" name="purposeofLeave" value="' . $result2['purposeOfLeave'] . '">' . $result2['purposeOfLeave'] . '</textarea>
                             </div>
                         </div>
+                        <div class="col-md-6">
+                            <div>
+                                <label class="col-sm-5 fw-bold">Employee Leave Type</label>
+                                <input readonly class="form-control" id="halfDay" name="halfDay" value="' . $half . '"></input>
+                            </div>
+                        </div>
                     </div>
-                    
                     <div class="form-group mb-2 row">
                         <div class="col-md-6">
-                            <label class="col-sm-5">Leave From:</label>
+                            <label class="col-sm-5 fw-bold">Leave From:</label>
                             <input readonly class="form-control" id="leaveFrom" name="leaveFrom" value="' . date("F j, Y", strtotime($result2['leaveFrom'])) . '"></input>
                         </div>
                         <div class="col-md-6">
-                            <label class="col-sm-5">Leave To:</label>
+                            <label class="col-sm-5 fw-bold">Leave To:</label>
                             <input readonly class="form-control" id="leaveTo" name="leaveTo" value="' . date("F j, Y", strtotime($result2['leaveTo'])) . '"></input>
                         </div>
                     </div>
                     <div class="form-group mb-2">
                         <div class="col-md-12 mb-sm-0 mb-1">
                             <div>
-                                <label class="col-sm-5">Approve Leave?</label>
+                                <label class="col-sm-5 fw-bold">Approve Leave?</label>
                                 <select class="form-control" id="decisionOfLeader" name="decisionOfLeader">
                                     <option>Select Decision</option>
                                     <option value="approve">Yes</option>
@@ -233,7 +244,7 @@ class Notifications extends Database
                         <div class="form-group mb-2">
                             <div class="col-md-12 mb-sm-0 mb-1">
                                 <div>
-                                    <label class="col-sm-5">Reason for Approval</label>
+                                    <label class="col-sm-5 fw-bold">Reason for Approval</label>
                                     <textarea class="form-control remarkLeaderClass" id="approvalLeaderRemarks" name="approvalLeaderRemarks"></textarea>
                                 </div>
                             </div>
@@ -243,7 +254,7 @@ class Notifications extends Database
                         <div class="form-group mb-2">
                             <div class="col-md-12 mb-sm-0 mb-1">
                                 <div>
-                                    <label class="col-sm-5">Reason for Disapproval</label>
+                                    <label class="col-sm-5 fw-bold">Reason for Disapproval</label>
                                     <textarea class="form-control remarkLeaderClass" id="disapprovalLeaderRemarks" name="disapprovalLeaderRemarks"></textarea>
                                 </div>
                             </div>
@@ -267,10 +278,14 @@ class Notifications extends Database
         $html = '';
 
         $data = $this->getLeaveForm($notificationKey);
-
+        $half = '';
 
         foreach ($data as $key => $result) :
-
+            if ($result['halfDayFlag'] == "1") {
+                $half .= "Half Day";
+            } else {
+                $half .= "Whole Day";
+            }
             if ($result['documents'] != "") {
                 $html .= '<div class="col-sm-12 mb-sm-0 mb-5">
                         <div class="row">
@@ -282,45 +297,51 @@ class Notifications extends Database
             }
             $html .= '<div class="form-group mb-2 row">
                         <div class="col-md-6">
-                            <label class="col-sm-5">Employee No.</label>
+                            <label class="col-sm-5 fw-bold">Employee No.</label>
                             <input readonly class="form-control" id="employeeNumber" name="employeeNumber" value="' . $result['employeeNumber'] . '"></input>
                         </div>
                         <div class="col-md-6">
-                            <label class="col-sm-5">Employee Name</label>
+                            <label class="col-sm-5 fw-bold">Employee Name</label>
                             <input readonly class="form-control" id="employeeName" name="employeeName" value="' . $result['employeeName'] . '"></input>
                         </div>
                     </div>
                     <div class="col-sm-12 mb-sm-0 mb-1" hidden>
                         <div class="row">
-                            <label class="col-sm-5">List ID</label>
+                            <label class="col-sm-5 fw-bold">List ID</label>
                             <input readonly class="form-control" id="listId" name="listId" value="' . $result['listId'] . '"></input>
                         </div>
                     </div>
                     <div class="form-group mb-2 row">
                         <div class="col-md-6">
-                            <label class="col-sm-5">Designation</label>
+                            <label class="col-sm-5 fw-bold">Designation</label>
                             <input readonly class="form-control" id="designation" name="designation" value="' . $result['designation'] . '"></input>
                         </div>
                         <div class="col-md-6">
-                            <label class="col-sm-5">Department</label>
+                            <label class="col-sm-5 fw-bold">Department</label>
                             <input readonly class="form-control" id="department" name="department" value="' . $result['department'] . '"></input>
                         </div>
                     </div>
-                    <div class="form-group mb-2">
-                        <div class="col-md-12 mb-sm-0 mb-1">
+                    <div class="form-group mb-2 row">
+                        <div class="col-md-6">
                             <div>
-                                <label class="col-sm-5">Purpose of Leave</label>
+                                <label class="col-sm-5 fw-bold">Purpose of Leave</label>
                                 <textarea readonly class="form-control" id="purposeofLeave" name="purposeofLeave" value="' . $result['purposeOfLeave'] . '">' . $result['purposeOfLeave'] . '</textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div>
+                                <label class="col-sm-5 fw-bold">Employee Leave Type</label>
+                                <input readonly class="form-control" id="halfDay" name="halfDay" value="' . $half . '"></input>
                             </div>
                         </div>
                     </div>
                     <div class="form-group mb-2 row">
                         <div class="col-md-6">
-                            <label class="col-sm-5">Leave From:</label>
+                            <label class="col-sm-5 fw-bold">Leave From:</label>
                             <input readonly class="form-control" id="leaveFrom" name="leaveFrom" value="' . date("F j, Y", strtotime($result['leaveFrom'])) . '"></input>
                         </div>
                         <div class="col-md-6">
-                            <label class="col-sm-5">Leave To:</label>
+                            <label class="col-sm-5 fw-bold">Leave To:</label>
                             <input readonly class="form-control" id="leaveTo" name="leaveTo" value="' . date("F j, Y", strtotime($result['leaveTo'])) . '"></input>
                         </div>
                     </div>';
@@ -329,7 +350,7 @@ class Notifications extends Database
                 $html .= '<div class="form-group mb-2">
                         <div class="col-md-12 mb-sm-0 mb-1">
                             <div>
-                                <label class="col-sm-6">Reason of Leader</label>
+                                <label class="col-sm-6 fw-bold">Reason of Leader</label>
                                 <textarea readonly class="form-control" id="reasonOfLeaderApproval" name="reasonOfLeaderApproval" rows="3" value="' . $result['reasonOfLeader'] . '">' . $result['reasonOfLeader'] . '</textarea>
                             </div>
                         </div>
@@ -338,7 +359,7 @@ class Notifications extends Database
             $html .= '<div class="form-group mb-2">
                         <div class="col-md-12 mb-sm-0 mb-1">
                             <div>
-                                <label class="col-sm-5">Approve Leave?</label>
+                                <label class="col-sm-5 fw-bold">Approve Leave?</label>
                                 <select class="form-control" id="decisionOfHead" name="decisionOfHead">
                                     <option>Select Decision</option>
                                     <option value="approve">Yes</option>
@@ -351,7 +372,7 @@ class Notifications extends Database
                         <div class="form-group mb-2">
                             <div class="col-md-12 mb-sm-0 mb-1">
                                 <div>
-                                    <label class="col-sm-5">Reason for Approval</label>
+                                    <label class="col-sm-5 fw-bold">Reason for Approval</label>
                                     <textarea class="form-control remarkHeadClass" id="approvalHeadRemarks" name="approvalHeadRemarks"></textarea>
                                 </div>
                             </div>
@@ -361,7 +382,7 @@ class Notifications extends Database
                         <div class="form-group mb-2">
                             <div class="col-md-12 mb-sm-0 mb-1">
                                 <div>
-                                    <label class="col-sm-5">Reason for Disapproval</label>
+                                    <label class="col-sm-5 fw-bold">Reason for Disapproval</label>
                                     <textarea class="form-control remarkHeadClass" id="disapprovalHeadRemarks" name="disapprovalHeadRemarks"></textarea>
                                 </div>
                             </div>
@@ -385,7 +406,15 @@ class Notifications extends Database
 
         $data = $this->getLeaveForm($notificationKey);
 
+        $half = '';
+
         foreach ($data as $key => $newResult) :
+            if ($newResult['halfDayFlag'] == 1) {
+                $half .= 'Half Day';
+            } else {
+                $half .= 'Full Day';
+            }
+
             if ($newResult['documents'] != "") {
                 $html .= '<div class="col-sm-12 mb-sm-0 mb-5">
                         <div class="row">
@@ -397,45 +426,51 @@ class Notifications extends Database
             }
             $html .= '<div class="form-group mb-2 row">
                         <div class="col-md-6">
-                            <label class="col-sm-5">Employee No.</label>
+                            <label class="col-sm-5 fw-bold">Employee No.</label>
                             <input readonly class="form-control" id="empNum" name="empNum" value="' . $newResult['employeeNumber'] . '"></input>
                         </div>
                         <div class="col-md-6">
-                            <label class="col-sm-5">Employee Name</label>
+                            <label class="col-sm-5 fw-bold">Employee Name</label>
                             <input readonly class="form-control" id="empName" name="empName" value="' . $newResult['employeeName'] . '"></input>
                         </div>
                     </div>
                     <div class="col-sm-12 mb-sm-0 mb-1" hidden>
                         <div class="row">
-                            <label class="col-sm-5">List ID</label>
+                            <label class="col-sm-5 fw-bold">List ID</label>
                             <input readonly class="form-control" id="list" name="list" value="' . $newResult['listId'] . '"></input>
                         </div>
                     </div>
                     <div class="form-group mb-2 row">
                         <div class="col-md-6">
-                            <label class="col-sm-5">Designation</label>
+                            <label class="col-sm-5 fw-bold">Designation</label>
                             <input readonly class="form-control" id="des" name="des" value="' . $newResult['designation'] . '"></input>
                         </div>
                         <div class="col-md-6">
-                            <label class="col-sm-5">Department</label>
+                            <label class="col-sm-5 fw-bold">Department</label>
                             <input readonly class="form-control" id="dept" name="dept" value="' . $newResult['department'] . '"></input>
                         </div>
                     </div>
-                    <div class="form-group mb-2">
-                        <div class="col-md-12 mb-sm-0 mb-1">
+                    <div class="form-group mb-2 row">
+                        <div class="col-md-6">
                             <div>
-                                <label class="col-sm-5">Purpose of Leave</label>
+                                <label class="col-sm-5 fw-bold">Purpose of Leave</label>
                                 <textarea readonly class="form-control" id="purpose" name="purpose" value="' . $newResult['purposeOfLeave'] . '">' . $newResult['purposeOfLeave'] . '</textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div>
+                                <label class="col-sm-5 fw-bold">Employee Leave Type</label>
+                                <input readonly class="form-control" id="halfDay" name="halfDay" value="' . $half . '"></input>
                             </div>
                         </div>
                     </div>
                     <div class="form-group mb-2 row">
                         <div class="col-md-6">
-                            <label class="col-sm-5">Leave From:</label>
+                            <label class="col-sm-5 fw-bold">Leave From:</label>
                             <input readonly class="form-control" id="from" name="from" value="' . date("F j, Y", strtotime($newResult['leaveFrom'])) . '"></input>
                         </div>
                         <div class="col-md-6">
-                            <label class="col-sm-5">Leave To:</label>
+                            <label class="col-sm-5 fw-bold">Leave To:</label>
                             <input readonly class="form-control" id="to" name="to" value="' . date("F j, Y", strtotime($newResult['leaveTo'])) . '"></input>
                         </div>
                     </div>';
@@ -444,7 +479,7 @@ class Notifications extends Database
                 $html .= '<div class="form-group mb-2">
                         <div class="col-md-12 mb-sm-0 mb-1">
                             <div>
-                                <label class="col-sm-6">Reason of Leader</label>
+                                <label class="col-sm-6 fw-bold">Reason of Leader</label>
                                 <textarea readonly class="form-control" id="reasonOfLeaderApproval" name="reasonOfLeaderApproval" rows="3" value="' . $newResult['reasonOfLeader'] . '">' . $newResult['reasonOfLeader'] . '</textarea>
                             </div>
                         </div>
@@ -453,7 +488,7 @@ class Notifications extends Database
             $html .= '<div class="form-group mb-2">
                         <div class="col-md-12 mb-sm-0 mb-1">
                             <div>
-                                <label class="col-sm-6">Reason of Superior</label>
+                                <label class="col-sm-6 fw-bold">Reason of Superior</label>
                                 <textarea readonly class="form-control" id="reasonOfApproval" name="reasonOfApproval" rows="3" value="' . $newResult['reasonOfSuperior'] . '">' . $newResult['reasonOfSuperior'] . '</textarea>
                             </div>
                         </div>
@@ -461,7 +496,7 @@ class Notifications extends Database
                     <div class="form-group mb-2">
                         <div class="col-md-12 mb-sm-0 mb-1">
                             <div>
-                                <label class="col-sm-6">Date of Superior Approval</label>
+                                <label class="col-sm-6 fw-bold">Date of Superior Approval</label>
                                 <input readonly class="form-control" id="dateOfApproval" name="dateOfApproval" value="' . date("F j, Y", strtotime($newResult['date'])) . '"></input>
                             </div>
                         </div>
@@ -469,7 +504,7 @@ class Notifications extends Database
                     <div class="form-group mb-2">
                         <div class="col-md-12 mb-sm-0 mb-1">
                             <div>
-                                <label class="col-sm-6">Approve Leave?</label>
+                                <label class="col-sm-6 fw-bold">Approve Leave?</label>
                                 <select class="form-control" id="decision" name="decision">
                                     <option>Choose Decision</option>
                                     <option value="3">Yes</option>
@@ -482,7 +517,7 @@ class Notifications extends Database
                         <div class="form-group mb-2">
                             <div class="col-md-12 mb-sm-0 mb-1">
                                 <div>
-                                    <label class="col-sm-5">Reason for Disapproval</label>
+                                    <label class="col-sm-5 fw-bold">Reason for Disapproval</label>
                                     <textarea class="form-control remarkClass" id="disapprovalRemarks" name="disapprovalRemarks"></textarea>
                                 </div>
                             </div>
@@ -492,7 +527,7 @@ class Notifications extends Database
                         <div class="form-group mb-2">
                             <div class="col-md-12 mb-sm-0 mb-1">
                                 <div>
-                                    <label class="col-sm-5">Leave Type</label>
+                                    <label class="col-sm-5 fw-bold">Leave Type</label>
                                     <select name="leaveType" id="leaveType" class="form-control">
                                         <option value="">Whole Day</option>
                                         <option value="0.5">Half Day</option>
@@ -503,21 +538,21 @@ class Notifications extends Database
                         <div class="form-group mb-2">
                             <div class="col-md-12 mb-sm-0 mb-1">
                                 <div>
-                                    <label class="col-sm-5">Leave Remarks</label>
+                                    <label class="col-sm-5 fw-bold">Leave Remarks</label>
                                     <textarea class="form-control remarkClass" id="leaveRemarks" name="leaveRemarks"></textarea>
                                 </div>
                             </div>
                         </div>
                         <div class="form-group mb-2 row">
                             <div class="col-md-6">
-                                <label class="col-sm-5">With Payment</label>
+                                <label class="col-sm-5 fw-bold">With Payment</label>
                                 <select name="status" id="status" class="form-control">
                                     <option value="0">Without Pay</option>
                                     <option value="1">With Pay</option>
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <label class="col-sm-5">Type</label>
+                                <label class="col-sm-5 fw-bold">Type</label>
                                 <select name="type" id="type" class="form-control">
                                     <option value="0">Sick Leave</option>
                                     <option value="1">Vacation Leave</option>
@@ -529,14 +564,14 @@ class Notifications extends Database
                         </div>
                         <div class="form-group mb-2 row">
                             <div class="col-md-6">
-                                <label class="col-sm-12">Trasportation Allowance (if any)</label>
+                                <label class="col-sm-12 fw-bold">Trasportation Allowance (if any)</label>
                                 <select name="transpoAllowance" id="transpoAllowance" class="form-control">
                                     <option value="0">No</option>
                                     <option value="1">Yes</option>
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <label class="col-sm-5">Quarantine Flag</label>
+                                <label class="col-sm-5 fw-bold">Quarantine Flag</label>
                                 <select name="quarantine" id="quarantine" class="form-control">
                                     <option value="0">Default</option>
                                     <option value="1">Due to Covid-19</option>
