@@ -76,7 +76,7 @@ $(document).ready(function () {
 
 $(document).ready(function () {
   let hiddenId = $("#hiddenId").val();
-  if ($("#viewLeaveDetails").length == 0) {
+  if ($("#viewLeaveDetails").length == 0 && $("#viewLeaderDetails").length == 0) {
     $.ajax({
       url: "controllers/ck_newNotificationController.php",
       type: "POST",
@@ -86,7 +86,7 @@ $(document).ready(function () {
         $("#viewHRDetails").html(data);
       },
     });
-  } else if ($("#viewHRDetails").length == 0) {
+  } else if ($("#viewHRDetails").length == 0 && $("#viewLeaderDetails").length == 0) {
     $.ajax({
       url: "controllers/ck_newNotificationController.php",
       type: "POST",
@@ -96,8 +96,8 @@ $(document).ready(function () {
         $("#viewLeaveDetails").html(data);
       },
     });
-  } else {
-    $.ajax({
+  } else if ($("#viewHRDetails").length == 0 && $("#viewLeaveDetails").length == 0) {
+  	$.ajax({
       url: "controllers/ck_newNotificationController.php",
       type: "POST",
       data: { modal3: 1, hiddenId: hiddenId },
@@ -163,6 +163,7 @@ $(document).on("click", "#submitLeaderApproval", function () {
         leaderRemark: leaderRemark,
       },
       success: function (response) {
+      	// alert(response);
         Swal.fire({
           title: "Success",
           text: "Leave Has Been Set!",
@@ -303,6 +304,7 @@ $(document).on("click", "#setStatusBTN", function () {
         $(this).prop("disabled", false);
       },
       success: function (response) {
+      	// alert(response);
         Swal.fire({
           title: "Success",
           text: "Leave Status has been set!",

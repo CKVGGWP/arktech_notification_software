@@ -18,7 +18,7 @@
 
     <!-- End of Header -->
 
-    <!-- Start of Sidebar -->
+ <!-- Start of Sidebar -->
 
     <div class="container-fluid">
         <div class="row">

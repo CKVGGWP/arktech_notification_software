@@ -5,7 +5,7 @@
             <div class="card-header py-3">
                 <a class="btn btn-outline-light text-dark" href="val_notifications.php?title=Notification" role="button"><i class="fa-solid fa-chevron-left"></i></i> Back</a>
             </div>
-            <input type="text" id="hiddenId" value="<?php echo $leaveId; ?>">
+            <input type="hidden" id="hiddenId" value="<?php echo $leaveId; ?>">
             <div class="card-body">
                 <?php if ($position == "HR Staff") : ?>
                     <div class="card-body" id="viewHRDetails">

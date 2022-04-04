@@ -3,7 +3,9 @@
 require("models/ck_database.php");
 require("models/val_notifications.php");
 
-$userID = isset($_SESSION['userID']) ? $_SESSION['userID'] : '';
+session_start();
+
+$userID = isset($_SESSION['idNumber']) ? $_SESSION['idNumber'] : '';
 
 $leaveId = isset($_GET['leaveFormId']) ? $_GET['leaveFormId'] : '';
 
@@ -16,3 +18,4 @@ $notificationCount = $notificationType->num_rows;
 $position = $notification->getPosition($userID);
 
 $countAllNotification = $notification->countNotification($position);
+

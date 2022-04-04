@@ -1,1 +1,0 @@
-# Arktech Notification Software
